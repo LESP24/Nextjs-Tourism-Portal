@@ -3,6 +3,7 @@
 // =============================================================
 import type { Metadata } from 'next';
 import { Abril_Fatface, Lora } from 'next/font/google';
+import Navbar from '@/components/Navbar'; // 👈 IMPORTAMOS EL NAVBAR AQUÍ
 import './globals.css';
 
 // -----------------------------------------------------------
@@ -62,7 +63,11 @@ export default function LayoutRaiz({
 }) {
   return (
     <html lang="es" className={`${abrilFatface.variable} ${lora.variable}`}>
-      <body className="font-cuerpo antialiased">
+      {/* Añadí bg-crema al body para mantener el color de fondo de tu diseño en todas las páginas */}
+      <body className="font-cuerpo antialiased bg-crema text-corteza">
+        
+        <Navbar /> {/* 👈 COLOCAMOS EL NAVBAR AQUÍ, ARRIBA DEL CONTENIDO */}
+        
         {children}
 
         {/* 

@@ -51,19 +51,7 @@ export default function EncabezadoPrincipal() {
           📌 CMS: Los elementos del menú de navegación pueden gestionarse
           desde el panel de administrador (añadir/quitar secciones del portal).
         */}
-        <ul className="hidden md:flex items-center gap-8">
-          {['Ecoturismo', 'Rutas', 'Comunidades', 'Religion'].map((seccion) => (
-            <li key={seccion}>
-              <a
-                href={`#${seccion.toLowerCase()}`}
-                className="font-cuerpo text-crema/70 text-sm tracking-wider
-                           hover:text-sol transition-colors duration-300"
-              >
-                {seccion}
-              </a>
-            </li>
-          ))}
-        </ul>
+       
       </nav>
 
       {/* ── BLOQUE CENTRAL: Título y subtítulo ── */}

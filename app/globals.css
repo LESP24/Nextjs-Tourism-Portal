@@ -187,3 +187,77 @@ body {
   .retraso-500 { animation-delay: 0.5s; }
   .retraso-600 { animation-delay: 0.6s; }
 }
+
+/* ==========================================================================
+   Estilos personalizados para limpiar el Widget de Google Translate
+   ========================================================================== */
+
+/* 1. Ocultar la espantosa barra superior blanca que inyecta Google */
+body {
+  top: 0px !important;
+}
+.skiptranslate > iframe {
+  display: none !important;
+}
+
+/* 2. Ocultar el texto de "Seleccionar idioma" y el logo de Google */
+.goog-te-gadget {
+  color: transparent !important;
+  font-size: 0px !important;
+}
+.goog-te-gadget span {
+  display: none !important;
+}
+.goog-te-gadget img {
+  display: none !important;
+}
+
+/* 3. Estilizar la caja selectora para que combine con el Navbar oscuro */
+.goog-te-gadget .goog-te-combo {
+  font-size: 14px !important;
+  color: #F7F5F0 !important; /* Tu color crema */
+  background-color: transparent !important;
+  border: 1px solid rgba(247, 245, 240, 0.4) !important;
+  padding: 6px 12px;
+  border-radius: 20px;
+  outline: none;
+  cursor: pointer;
+  font-family: var(--fuente-cuerpo), serif;
+}
+
+/* Efecto al pasar el ratón */
+.goog-te-gadget .goog-te-combo:hover {
+  border-color: #F7F5F0 !important;
+}
+/* ==========================================================================
+   Estilos para el Widget de Google Translate (Técnica de Capa Invisible)
+   ========================================================================== */
+body { top: 0px !important; }
+.skiptranslate > iframe { display: none !important; }
+
+/* Forzamos a que el widget de Google y su selector cubran el 100% del espacio */
+.goog-te-gadget,
+.goog-te-gadget > div,
+.goog-te-combo {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+}
+/* ==========================================================================
+   Ocultar completamente el Widget original de Google Translate
+   ========================================================================== */
+body {
+  top: 0px !important;
+}
+.skiptranslate > iframe {
+  display: none !important;
+}
+/* Mantenemos el contenedor vivo en el DOM pero totalmente escondido e inaccesible */
+#google_translate_element {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -999 !important;
+}

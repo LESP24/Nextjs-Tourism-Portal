@@ -20,7 +20,6 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
-      // AHORA SÍ: EL CAMPO ORDEN ESTÁ LIBRE Y EN SU LUGAR
       name: 'orden',
       title: 'Orden de aparición',
       type: 'number',
@@ -29,22 +28,46 @@ export default {
     {
       name: 'descripcion',
       type: 'text',
-      title: 'Descripción',
-      description: 'Escribe un texto atractivo para invitar al turista.',
+      title: 'Descripción Corta (Para la tarjeta principal)',
+      description: 'Texto breve. Ej: Un rincón natural imperdible.',
     },
     {
       name: 'imagenPrincipal',
       type: 'image',
-      title: 'Fotografía Principal',
-      options: {
-        hotspot: true, // Permite recortar la imagen desde el panel
-      },
+      title: 'Fotografía Principal (Para la tarjeta y portada)',
+      options: { hotspot: true },
+    },
+    
+    // ⬇️ ¡AQUÍ EMPIEZAN LOS NUEVOS SUPERPODERES! ⬇️
+
+    {
+      name: 'contenidoDetallado',
+      title: 'Información Detallada (Para la página interna)',
+      type: 'array',
+      description: 'Aquí pueden escribir toda la información completa, usar negritas, listas y subtítulos.',
+      of: [{ type: 'block' }], // Esto activa el editor estilo "Word" en Sanity
     },
     {
-      name: 'videoYouTube',
+      name: 'galeria',
+      title: 'Galería de Fotos Adicionales',
+      type: 'array',
+      description: 'Sube todas las fotos extra que quieras mostrar en la página del lugar.',
+      of: [{ type: 'image', options: { hotspot: true } }],
+    },
+    {
+      name: 'ubicacionMapa',
+      title: 'Enlace de Google Maps',
+      type: 'url',
+      description: 'Ve a Google Maps, busca el lugar, dale a Compartir -> Copiar enlace y pégalo aquí.',
+    },
+
+    // ⬆️ FIN DE LOS NUEVOS SUPERPODERES ⬆️
+
+    {
+      name: 'enlaceVideo',
       type: 'url',
       title: 'Enlace de Video (YouTube)',
-      description: 'Opcional. Pega el link de YouTube para no consumir espacio en servidores.',
+      description: 'Opcional. Pega el link de YouTube.',
     },
     {
       name: 'enlaceExterno',

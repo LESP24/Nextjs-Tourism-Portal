@@ -4,6 +4,7 @@ import { structureTool } from 'sanity/structure'
 
 // 1. IMPORTAMOS TU MOLDE AQUÍ ARRIBA
 import lugarTuristico from './sanity/schemas/lugarTuristico' 
+import rutaCultural from './sanity/schemas/experienciaCultural'; // 👈 1. Agrega esta línea
 
 export default defineConfig({
   basePath: '/studio',
@@ -14,6 +15,7 @@ export default defineConfig({
 
   schema: {
     // 2. LO AGREGAMOS DENTRO DE LOS CORCHETES
-    types: [lugarTuristico], 
+    types: [lugarTuristico, rutaCultural], //], 
+    
   },
 })

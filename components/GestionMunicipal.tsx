@@ -11,12 +11,13 @@ export default function GestionMunicipal() {
             Asegúrate de guardar la foto del presidente en public/imagenes/presidente.jpg 
             Si aún no la tienes, se verá el fondo verde (bg-jade)
           */}
-          <Image 
-            src="/imagenes/Presidente.jpeg" 
-            alt="Presidente Municipal de Tzimol"
-            fill
-            className="object-cover"
-          />
+          <Image
+           src="/imagenes/Presidente.jpeg"
+           alt="Presidente Municipal"
+           fill
+           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+           className="object-cover" 
+/>
           
           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-selva p-8 z-10">
             <p className="font-titulo text-crema text-3xl mb-1">
