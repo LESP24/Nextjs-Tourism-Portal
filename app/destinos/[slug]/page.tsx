@@ -3,6 +3,7 @@
 // Diseño editorial: imágenes intercaladas en el texto,
 // alternando lado derecho e izquierdo como en revistas de viaje.
 // =============================================================
+import { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { clienteSanity } from '../../../sanity/cliente';
@@ -33,11 +34,6 @@ function EtiquetaSeccion({ texto }: { texto: string }) {
 // -----------------------------------------------------------
 // Imagen editorial con efecto hover y borde redondeado
 // Se alterna entre derecha e izquierda según el índice.
-//
-// Técnica: CSS float clásico — el texto de PortableText
-// fluye naturalmente alrededor de la imagen.
-// En móvil: ocupa el ancho completo y no flota.
-// En desktop (md+): ocupa 46% del ancho y flota al lado indicado.
 // -----------------------------------------------------------
 function ImagenEditorial({
   url,
@@ -53,10 +49,8 @@ function ImagenEditorial({
   return (
     <figure
       className={[
-        // Móvil: ancho completo, sin float
         'w-full h-52 rounded-2xl overflow-hidden shadow-lg shadow-selva/15',
         'my-6 group transition-shadow duration-300 hover:shadow-xl hover:shadow-selva/20',
-        // Desktop: float alternado, ancho 46%
         esDerecha
           ? 'md:float-right md:ml-8 md:mb-4 md:w-[46%] md:h-64'
           : 'md:float-left md:mr-8 md:mb-4 md:w-[46%] md:h-64',
@@ -70,7 +64,6 @@ function ImagenEditorial({
           sizes="(max-width: 768px) 100vw, 45vw"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        {/* Gradiente sutil en la dirección opuesta al texto */}
         <div
           className={[
             'absolute inset-0 opacity-30',
@@ -86,9 +79,7 @@ function ImagenEditorial({
 }
 
 // -----------------------------------------------------------
-// Divide un array de bloques en N+1 grupos distribuidos uniformemente.
-// Las imágenes se insertan ENTRE cada grupo para crear el efecto
-// "texto → imagen → texto → imagen" intercalado.
+// Divide bloques en N+1 grupos para intercalar imágenes
 // -----------------------------------------------------------
 function dividirBloques(bloques: any[], totalImagenes: number): any[][] {
   if (totalImagenes === 0 || bloques.length === 0) return [bloques];
@@ -103,6 +94,58 @@ function dividirBloques(bloques: any[], totalImagenes: number): any[][] {
   }
 
   return grupos;
+}
+
+// -----------------------------------------------------------
+// SEO: Metadatos dinámicos por destino
+// Next.js los usa para el <title> y las etiquetas Open Graph
+// (las que se ven cuando compartes el link en WhatsApp, etc.)
+//
+// Ajustes respecto al snippet original:
+//   • clienteSanity  (no "cliente")
+//   • campo "nombre" (no "titulo" — así está en tu esquema Sanity)
+//   • params como Promise<>  (Next.js 15 los resuelve async)
+// -----------------------------------------------------------
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+
+  const queryMeta = `*[_type == "lugarTuristico" && slug.current == $slug][0]{
+    nombre,
+    descripcion,
+    "imageUrl": imagenPrincipal.asset->url
+  }`;
+
+  const meta = await clienteSanity.fetch(queryMeta, { slug });
+
+  if (!meta) {
+    return {
+      title: 'Destino no encontrado | Tzimol',
+    };
+  }
+
+  return {
+    title: `${meta.nombre} | Ecoturismo en Tzimol`,
+    description: meta.descripcion,
+    keywords: ['cascadas', 'senderismo', 'cenotes', 'chiapas', 'tzimol', meta.nombre],
+    openGraph: {
+      title: meta.nombre,
+      description: meta.descripcion,
+      images: meta.imageUrl
+        ? [
+            {
+              url: meta.imageUrl,
+              width: 1200,
+              height: 630,
+              alt: `Fotografía de ${meta.nombre}`,
+            },
+          ]
+        : [],
+    },
+  };
 }
 
 // -----------------------------------------------------------
@@ -140,19 +183,15 @@ export default async function PaginaDestino({
   const idVideo = destino.enlaceVideo ? obtenerIdYouTube(destino.enlaceVideo) : null;
 
   // ── Preparar grupos de contenido para intercalar imágenes ───
-  // galeriaUrls es el array de fotos del campo "galeria" en Sanity.
-  // bloquesContenido son los párrafos del campo "contenidoDetallado".
-  //
   // 📌 CMS: El cliente agrega/quita fotos en el panel; la lógica de
   //         intercalado se recalcula automáticamente. Sin tocar código.
-  const galeriaUrls: string[]  = destino.galeriaUrls    ?? [];
-  const bloques:     any[]     = destino.contenidoDetallado ?? [];
-  const gruposContenido        = dividirBloques(bloques, galeriaUrls.length);
+  const galeriaUrls: string[] = destino.galeriaUrls ?? [];
+  const bloques: any[]        = destino.contenidoDetallado ?? [];
+  const gruposContenido       = dividirBloques(bloques, galeriaUrls.length);
 
   // ── Componentes personalizados para PortableText ─────────────
   const componentesPortableText = {
     types: {
-      // Imagen incrustada directamente en el texto enriquecido de Sanity
       image: ({ value }: { value: any }) => (
         <div className="relative w-full h-72 md:h-96 my-10 rounded-2xl overflow-hidden shadow-xl shadow-selva/10">
           <Image
@@ -181,7 +220,6 @@ export default async function PaginaDestino({
           {children}
         </blockquote>
       ),
-      // Párrafo normal: si empieza con negrita → fila de lista estilo "ficha"
       normal: ({ children, value }: { children?: any; value?: any }) => {
         const primerHijo = value?.children?.[0];
         const empiezaConEtiqueta = primerHijo?.marks?.includes('strong');
@@ -285,7 +323,6 @@ export default async function PaginaDestino({
       {/* ── 2. CONTENIDO PRINCIPAL ──────────────────────────────── */}
       <section className="max-w-4xl mx-auto px-4 md:px-6 pb-20">
 
-        {/* Botón de sitio oficial (aparece solo si el CMS tiene el campo) */}
         {destino.enlaceExterno && (
           <div className="mb-10 flex justify-center">
             <a
@@ -303,20 +340,14 @@ export default async function PaginaDestino({
           </div>
         )}
 
-        {/* ── TARJETA EDITORIAL ───────────────────────────────────
-            Diseño tipo revista: texto e imágenes fluyen juntos.
-            La tarjeta tiene overflow-visible para que los h2/h3
-            con clear-both no generen saltos raros.
-        ────────────────────────────────────────────────────────── */}
+        {/* ── TARJETA EDITORIAL ─────────────────────────────────── */}
         <div className="relative bg-white rounded-3xl shadow-xl shadow-selva/10 border border-selva/8 overflow-visible">
 
-          {/* Barra accent superior con gradiente de la paleta */}
           <div
             className="h-1 rounded-t-3xl bg-gradient-to-r from-jade via-sol to-terracota"
             aria-hidden="true"
           />
 
-          {/* Decoración: número de foto flotante (fondo) */}
           <svg
             viewBox="0 0 100 100"
             aria-hidden="true"
@@ -328,7 +359,6 @@ export default async function PaginaDestino({
 
           <div className="px-6 md:px-12 pt-10 md:pt-14 pb-12 md:pb-16">
 
-            {/* Nombre del destino como título interno de la tarjeta */}
             <div className="mb-8 pb-6 border-b border-selva/10">
               <p className="font-cuerpo text-terracota text-xs tracking-[0.35em] uppercase mb-2">
                 Destino turístico
@@ -339,27 +369,14 @@ export default async function PaginaDestino({
             </div>
 
             {/* ── CONTENIDO EDITORIAL CON IMÁGENES INTERCALADAS ────
-                Algoritmo:
-                  gruposContenido[0] → texto del primer bloque
-                  imagen [0] flotada a la DERECHA
-                  gruposContenido[1] → texto fluye alrededor
-                  [clear-both]
-                  imagen [1] flotada a la IZQUIERDA
-                  gruposContenido[2] → texto fluye alrededor
-                  [clear-both]
-                  ... y así sucesivamente.
-                
                 📌 CMS: Si el cliente agrega más fotos en Sanity,
-                        el algoritmo las redistribuye automáticamente
-                        sin necesidad de ajustes manuales.
+                        el algoritmo las redistribuye automáticamente.
             ───────────────────────────────────────────────────────── */}
             {bloques.length > 0 ? (
               <>
                 {gruposContenido.map((grupo, indiceGrupo) => (
                   <div key={indiceGrupo}>
 
-                    {/* Imagen ANTES de este grupo de texto (excepto el primero)
-                        → la imagen flota y el texto del grupo la rodea   */}
                     {indiceGrupo > 0 && galeriaUrls[indiceGrupo - 1] && (
                       <ImagenEditorial
                         url={galeriaUrls[indiceGrupo - 1]}
@@ -368,7 +385,6 @@ export default async function PaginaDestino({
                       />
                     )}
 
-                    {/* Bloques de texto de este grupo */}
                     {grupo.length > 0 && (
                       <PortableText
                         value={grupo}
@@ -376,15 +392,11 @@ export default async function PaginaDestino({
                       />
                     )}
 
-                    {/* Limpia los floats al terminar el grupo para evitar
-                        que la siguiente imagen herede el flow anterior   */}
                     <div className="clear-both" aria-hidden="true" />
 
                   </div>
                 ))}
 
-                {/* Si hay más imágenes que grupos (ej. 1 imagen con poco texto),
-                    mostrar las imágenes restantes al final en grid 2 columnas  */}
                 {galeriaUrls.length > gruposContenido.length && (
                   <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {galeriaUrls.slice(gruposContenido.length).map((url, i) => (
@@ -414,7 +426,7 @@ export default async function PaginaDestino({
         </div>
       </section>
 
-      {/* ── 3. VIDEO (aparece solo si el CMS tiene enlace) ─────── */}
+      {/* ── 3. VIDEO ────────────────────────────────────────────── */}
       {idVideo && (
         <section className="bg-selva/5 py-16 md:py-24 px-6">
           <div className="max-w-5xl mx-auto text-center">
@@ -436,14 +448,10 @@ export default async function PaginaDestino({
       )}
 
       {/* ── 4. MAPA / UBICACIÓN ─────────────────────────────────
-          📌 CMS: El campo "ubicacionMapa" en Sanity debe contener
-          la URL tipo "Insertar un mapa" (Embed) de Google Maps.
-          Cómo obtenerla:
-            1. Busca el lugar en Google Maps → clic en "Compartir"
-            2. Pestaña "Insertar un mapa" (NO "Enviar un enlace")
-            3. Copia la URL que está dentro de src="..."
-               (empieza con https://www.google.com/maps/embed?pb=...)
-            4. Pega esa URL en el campo del panel de Sanity.
+          📌 CMS: El campo "ubicacionMapa" debe contener la URL
+          tipo "Insertar un mapa" (Embed) de Google Maps.
+          Pasos: Maps → Compartir → "Insertar un mapa" → copiar
+          solo la URL dentro de src="..."
       ─────────────────────────────────────────────────────────── */}
       {destino.ubicacionMapa && (
         <section className="bg-selva py-16 md:py-20 px-6 text-center">
