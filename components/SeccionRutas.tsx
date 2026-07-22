@@ -1,8 +1,11 @@
+'use client';
+
 // =============================================================
 // components/SeccionRutas.tsx
 // Sección editorial unificada para mostrar Tradición y Cultura de Tzimol.
-// Componente de Servidor — no requiere 'use client'.
+// Convertido a Componente de Cliente para permitir filtrado interactivo.
 // =============================================================
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link'; 
 
@@ -11,7 +14,7 @@ interface PropsSeccionRutas {
 }
 
 // -----------------------------------------------------------
-// Subcomponente: Tarjeta de Cultura/Ruta
+// Subcomponente: Tarjeta de Cultura/Ruta (Mantenido intacto)
 // -----------------------------------------------------------
 function TarjetaRuta({ ruta, indice }: { ruta: any; indice: number }) {
   const tituloMostrar = ruta.titulo || ruta.nombre;
@@ -112,8 +115,26 @@ function TarjetaRuta({ ruta, indice }: { ruta: any; indice: number }) {
 // Componente principal: SeccionRutas
 // -----------------------------------------------------------
 export default function SeccionRutas({ rutas }: PropsSeccionRutas) {
-  // Para evitar errores si "rutas" viene vacío desde Sanity
+  // Estado para el filtro activo
+  const [filtroActivo, setFiltroActivo] = useState('todos');
+
+  // Aseguramos que rutas sea un arreglo
   const listaRutas = rutas || [];
+
+  // Categorías basadas en tus datos de Sanity
+  const categorias = [
+    { id: 'todos', label: 'Todos' },
+    { id: 'iglesia', label: 'Iglesias' },
+    { id: 'ruta', label: 'Rutas' },
+    { id: 'festividad', label: 'Festividades' },
+    { id: 'historico', label: 'Lugares Históricos' },
+    { id: 'gastronomia', label: 'Gastronomía' }
+  ];
+
+  // Filtramos los elementos antes de renderizarlos
+  const rutasFiltradas = filtroActivo === 'todos'
+    ? listaRutas
+    : listaRutas.filter((ruta) => ruta.tipoElemento === filtroActivo);
 
   return (
     <section
@@ -122,7 +143,7 @@ export default function SeccionRutas({ rutas }: PropsSeccionRutas) {
       aria-labelledby="titulo-cultura"
     >
       <div className="contenedor-sitio">
-        {/* Encabezado */}
+        {/* ── ENCABEZADO ── */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
           <div className="flex flex-col gap-4">
             <p className="font-cuerpo text-sol text-xs tracking-[0.4em] uppercase">
@@ -140,17 +161,44 @@ export default function SeccionRutas({ rutas }: PropsSeccionRutas) {
           </p>
         </div>
 
+        {/* ── BOTONES DE FILTRO ── */}
+        <div className="flex flex-wrap gap-3 mb-10">
+          {categorias.map((categoria) => (
+            <button
+              key={categoria.id}
+              onClick={() => setFiltroActivo(categoria.id)}
+              className={`font-cuerpo text-xs tracking-wider uppercase px-5 py-2.5 rounded-full transition-all duration-300 border ${
+                filtroActivo === categoria.id
+                  ? 'bg-sol text-selva border-sol font-semibold shadow-md' // Estilo Activo
+                  : 'bg-transparent text-crema/70 border-crema/30 hover:border-sol hover:text-sol' // Estilo Inactivo
+              }`}
+            >
+              {categoria.label}
+            </button>
+          ))}
+        </div>
+
         <div className="h-px w-full bg-crema/10 mb-14" aria-hidden="true" />
 
-        {/* Cuadrícula de Tarjetas */}
-        {listaRutas.length > 0 ? (
+        {/* ── CUADRÍCULA DE TARJETAS ── */}
+        {rutasFiltradas.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {listaRutas.map((ruta, indice) => (
+            {rutasFiltradas.map((ruta, indice) => (
               <TarjetaRuta key={ruta.id} ruta={ruta} indice={indice} />
             ))}
           </div>
         ) : (
-          <p className="text-crema/50 font-cuerpo">Aún no hay publicaciones en esta sección. Agrega contenido desde Sanity.</p>
+          <div className="py-12 text-center flex flex-col items-center gap-4">
+            <p className="text-crema/50 font-cuerpo text-lg">
+              Aún no hay publicaciones en esta categoría.
+            </p>
+            <button 
+              onClick={() => setFiltroActivo('todos')}
+              className="text-sol hover:text-crema font-cuerpo underline transition-colors"
+            >
+              Ver todas las categorías
+            </button>
+          </div>
         )}
       </div>
     </section>

@@ -1,7 +1,7 @@
 export default {
-  name: 'experienciaCultural', // Se cambia para que sea más general
+  name: 'experienciaCultural',
   type: 'document',
-  title: 'Tradición y Cultura', // Lo que leerá el Ayuntamiento en el panel
+  title: 'Tradición y Cultura',
   fields: [
     {
       name: 'titulo',
@@ -33,7 +33,7 @@ export default {
           { title: 'Lugar Histórico', value: 'historico' },
           { title: 'Gastronomía', value: 'gastronomia' }
         ],
-        layout: 'radio' // Se mostrará como botones de selección en Sanity
+        layout: 'radio'
       },
       validation: (Rule: any) => Rule.required(),
     },
@@ -66,13 +66,23 @@ export default {
       name: 'contenidoDetallado',
       title: 'Historia y Detalles Completos',
       type: 'array',
-      of: [{ type: 'block' }],
+      of: [
+        { type: 'block' }
+      ],
+      description: 'Aquí puedes escribir toda la historia. El texto rodeará automáticamente la primera foto de la galería.',
     },
     {
       name: 'galeria',
-      title: 'Galería de Fotos',
+      title: 'Galería de Fotos Adicionales',
       type: 'array',
       of: [{ type: 'image', options: { hotspot: true } }],
+      description: 'Sube aquí las fotos. La primera aparecerá flotando junto al texto.',
+    },
+    {
+      name: 'enlaceVideo',
+      title: 'Enlace de Video (YouTube o Facebook)',
+      type: 'url',
+      description: 'Pega aquí el link del video para mostrarlo en la página.',
     },
     {
       name: 'ubicacionMapa',
