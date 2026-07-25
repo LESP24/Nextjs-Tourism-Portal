@@ -14,7 +14,10 @@
 * **Dynamic Content Management:** Fully integrated with Sanity.io, allowing non-technical users to update tourism data, images, and descriptions in real-time without touching the code.
 
 ## 📸 Screenshots
-*(Añade aquí un par de capturas de tu portal. Te recomiendo una de la página principal y otra de cómo se ven los datos estructurados en tu panel de Sanity. Solo arrastra las imágenes aquí desde tu explorador de archivos para que GitHub genere los links).*
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/91e1e93b-56aa-442d-a563-dc1cc3ff2ced" />
+<img width="1917" height="896" alt="image" src="https://github.com/user-attachments/assets/d3d55ad7-64ae-4a6f-b2af-8c83ad21230a" />
+
 
 ## 🛠️ Installation & Local Setup
 
